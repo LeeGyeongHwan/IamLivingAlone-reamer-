@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    tools:context=".MainActivity"
+    >
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="276dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:text="남기고 싶은 말"
+        android:textSize="40sp" />
+
+    <TextView
+        android:id="@+id/Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text"
+        android:text="제목"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/textTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginBottom="10dp"
+        android:inputType="textEmailAddress"
+        android:layout_below="@+id/Title">
+
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/textContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textTitle"
+        android:text="내용"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/textEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:layout_marginBottom="10dp"
+        android:inputType="textPassword"
+        android:layout_below="@+id/textContent" />
+
+    <Button
+        android:id="@+id/makeBtn"
+        android:layout_width="100dp"
+        android:layout_marginLeft="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textEdit"
+        android:layout_marginBottom="20dp"
+        android:text="남기기!" />
+    <Button
+        android:id="@+id/cancelBtn"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/makeBtn"
+        android:layout_below="@+id/textEdit"
+        android:layout_marginBottom="20dp"
+        android:text="취소" />
+
+
+
+</RelativeLayout>
