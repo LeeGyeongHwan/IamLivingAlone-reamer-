@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity
     public Button Markerbtn;
 
     private GoogleMap mGoogleMap = null;
-    private Marker currentMarker = null;
 
     private static final String TAG = "googlemap.example";
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -114,12 +113,38 @@ public class MainActivity extends AppCompatActivity
     }
 
     void make_marker_dialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog tmp= builder.create();
         LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_makemarker,null);
-        builder.setView(view);
+        final View view = inflater.inflate(R.layout.dialog_makemarker,null);
+        Button makeBtn=(Button)view.findViewById(R.id.makeBtn);
+        Button cancelBtn=(Button)view.findViewById(R.id.cancelBtn);
 
-        builder.show();
+        tmp.setView(view);
+        tmp.show();
+
+        makeBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                EditText textTitle=(EditText)view.findViewById(R.id.textTitle);
+                EditText textContent=(EditText)view.findViewById(R.id.textEdit);
+                String tTitle=textTitle.getText().toString();
+                String tContent=textContent.getText().toString();
+
+                makeMarker(tTitle,tContent);
+                tmp.dismiss();
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                tmp.dismiss();
+            }
+        });
+
+
+
     }
 
 
@@ -310,6 +335,22 @@ public class MainActivity extends AppCompatActivity
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng,17);
             mGoogleMap.moveCamera(cameraUpdate);
+
+        }
+
+        public void makeMarker(String markerTitle,String markerSnippet){
+
+            //마커 있는 지 확인
+
+            LatLng currentLatLng=new LatLng(location.getLatitude(),location.getLongitude());
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(currentLatLng);
+            markerOptions.title(markerTitle);
+            markerOptions.snippet(markerSnippet);
+            markerOptions.draggable(true);
+            
+            mGoogleMap.addMarker(markerOptions);
 
         }
 
