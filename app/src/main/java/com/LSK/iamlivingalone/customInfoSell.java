@@ -2,7 +2,10 @@ package com.LSK.iamlivingalone;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -60,7 +63,11 @@ public class customInfoSell implements GoogleMap.InfoWindowAdapter {
             TextView content= view.findViewById(R.id.customcontent);
             title.setText(marker.getTitle());
             content.setText(marker.getSnippet());
-            Picasso.get().load(sell.uri).into(sellimage);
+
+            byte[] a = Base64.decode(sell.enImg,Base64.DEFAULT);
+            Bitmap bit = BitmapFactory.decodeByteArray(a,0,a.length);
+            sellimage.setImageBitmap(bit);
+
 
             return view;
         }

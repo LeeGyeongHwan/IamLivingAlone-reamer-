@@ -7,7 +7,7 @@ public class Sell {
 
     public String title;
     public String content;
-    public Uri uri;
+    public String enImg;
 
-    public Sell(Uri ur){this.uri =ur;}
+    public Sell(String str){this.enImg =str;}
 }

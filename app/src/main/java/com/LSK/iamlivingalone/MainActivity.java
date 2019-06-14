@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -29,6 +30,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -63,6 +65,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -116,16 +119,18 @@ public class MainActivity extends AppCompatActivity
         public double latitude;
         public double longitude;
         public int iconnum;
+        public String image;
 
         public User(){
         }
 
-        public User(String tContent, String tTitle, double latitude, double longitude,int iconnum){
+        public User(String tTitle, String tContent, double latitude, double longitude,int iconnum, String image){
             this.tContent = tContent;
             this.tTitle = tTitle;
             this.latitude = latitude;
             this.longitude = longitude;
             this.iconnum = iconnum;
+            this.image = image;
         }
     }
 
@@ -362,7 +367,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 User user = dataSnapshot.getValue(User.class);
-                makeMarker(user.tTitle,user.tContent,user.latitude,user.longitude,user.iconnum);
+                makeMarker(user.tTitle,user.tContent,user.latitude,user.longitude,user.iconnum,user.image);
             }
 
             @Override
@@ -517,9 +522,9 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        public void makeMarker(String markerTitle,String markerSnippet,int iconnum){
+        public void makeMarker(final String markerTitle, final String markerSnippet, final int iconnum){
 
-            MarkerOptions markerOptions = new MarkerOptions();
+           final MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.title(markerTitle);
             markerOptions.snippet(markerSnippet);
             markerOptions.draggable(true);
@@ -544,28 +549,51 @@ public class MainActivity extends AppCompatActivity
             LatLng currentLatLng=new LatLng(location.getLatitude(),location.getLongitude());
             markerOptions.position(currentLatLng);
 
+            Thread t = new Thread() {
+                @Override
+                public void run() {
 
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference myRef = database.getReference();
 
-            User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude(),iconnum);
-            myRef.child("echo").child("userID").push().setValue(user);
+                    try(ByteArrayOutputStream o = new ByteArrayOutputStream()) {
+                        Bitmap bitmap = Picasso.get().load(uri).get();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, o);
+                        byte[] a = o.toByteArray();
+                        final String base64 = Base64.encodeToString(a, Base64.DEFAULT);
+                        User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude(),iconnum, base64);
 
+                        myRef.child("echo").child("userID").push().setValue(user);
 
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
 
-            Marker m= mGoogleMap.addMarker(markerOptions);
-            if(iconnum==1){
-                m.setTag(new Memo());
-            }else if(iconnum==2){
-                m.setTag(new Conversation());
-            }else if(iconnum==3){
-                m.setTag(new Sell(uri));
-            }
-            m.showInfoWindow();
+                                Marker m= mGoogleMap.addMarker(markerOptions);
+
+                                if(iconnum==1){
+                                    m.setTag(new Memo());
+                                }else if(iconnum==2){
+                                    m.setTag(new Conversation());
+                                }else if(iconnum==3){
+                                    m.setTag(new Sell(base64));
+                                }
+                                m.showInfoWindow();
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+            t.start();
+
 
 
         }
-    public void makeMarker(String markerTitle,String markerSnippet,double latitude,double longitude,int iconnum){
+    public void makeMarker(String markerTitle,String markerSnippet,double latitude,double longitude,int iconnum,String comimage){
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(markerTitle);
@@ -595,13 +623,15 @@ public class MainActivity extends AppCompatActivity
         markerOptions.position(currentLatLng);
 
 
+
+
         Marker m= mGoogleMap.addMarker(markerOptions);
         if(iconnum==1){
             m.setTag(new Memo());
         }else if(iconnum==2){
             m.setTag(new Conversation());
         }else if(iconnum==3){
-            m.setTag(new Sell(uri));
+            m.setTag(new Sell(comimage));
         }
         m.showInfoWindow();
 
