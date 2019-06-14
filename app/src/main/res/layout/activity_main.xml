@@ -18,12 +18,28 @@
             android:layout_height="match_parent"
             class="com.google.android.gms.maps.MapFragment"/>
 
-        <Button
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:id="@+id/addMarkerBtn"
+        <LinearLayout
+            android:layout_width="210dp"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
             android:layout_gravity="right|bottom"
-            android:text="마커추가"/>
+            >
+            <Button
+                android:layout_width="70dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/addMarkerBtn"
+                android:text="담벼락"/>
+            <Button
+                android:layout_width="70dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/addconverBtn"
+                android:text="글 남기기"/>
+            <Button
+                android:layout_width="70dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/addsellBtn"
+                android:text="판매"/>
+        </LinearLayout>
 
     </FrameLayout>
 

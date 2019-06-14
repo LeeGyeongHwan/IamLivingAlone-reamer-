@@ -5,11 +5,15 @@ import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +27,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,26 +46,30 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback {
-
-    public Button Markerbtn;
+        implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback,View.OnClickListener {
+    public static final int PICK_ALBUM=1;
+    public static final int CROP_IMAGE=2;
+    private Uri mImageCaptureUri;
+    public Button Markerbtn,Conbtn,Sellbtn;
 
     private GoogleMap mGoogleMap = null;
 
-    private static final String TAG = "googlemap.example";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
     private static final int UPDATE_INTERVAL_MS = 1000;
     private static final int FASTEST_UPDATE_INTERVAL_MS = 500;
 
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
-
+    private int id_view;
+    private ImageView AlbumPhoto;
     String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
     Location mCurrentLocation;
@@ -82,6 +92,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         Markerbtn = (Button)findViewById(R.id.addMarkerBtn);
+        Conbtn = (Button)findViewById(R.id.addconverBtn);
+        Sellbtn= (Button)findViewById(R.id.addsellBtn);
         mLayout=findViewById(R.id.layout_main);
 
         Log.d(TAG,"onCreate");
@@ -106,13 +118,77 @@ public class MainActivity extends AppCompatActivity
         Markerbtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                make_marker_dialog();
+                make_marker_dialog(1);
+            }
+        });
+        Conbtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                make_marker_dialog(2);
+            }
+        });
+        Sellbtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                make_sell_dialog();
             }
         });
 
     }
 
-    void make_marker_dialog(){
+    public void onClick(View v){
+        id_view=v.getId();
+        if(v.getId()==R.id.uploadBtn){
+            takeAlbum();
+        }
+    }
+
+
+    public void takeAlbum(){
+        Intent intent =new Intent(Intent.ACTION_PICK);
+        intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+        startActivityForResult(intent,PICK_ALBUM);
+
+    }
+
+    void make_sell_dialog(){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog tmp= builder.create();
+        LayoutInflater inflater = getLayoutInflater();
+        final View view = inflater.inflate(R.layout.dialog_salemarker,null);
+        Button makeBtn=(Button)view.findViewById(R.id.makeBtn);
+        Button cancelBtn=(Button)view.findViewById(R.id.cancelBtn);
+        Button picBtn=(Button)view.findViewById(R.id.uploadBtn);
+        AlbumPhoto=(ImageView)view.findViewById(R.id.Albumimg);
+
+
+        tmp.setView(view);
+        tmp.show();
+
+
+        makeBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                EditText textTitle=(EditText)view.findViewById(R.id.textTitle);
+                EditText textContent=(EditText)view.findViewById(R.id.textEdit);
+                String tTitle=textTitle.getText().toString();
+                String tContent=textContent.getText().toString();
+
+                makeMarker(tTitle,tContent);
+                tmp.dismiss();
+            }
+        });
+
+        cancelBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                tmp.dismiss();
+            }
+        });
+
+    }
+
+    void make_marker_dialog(int num){
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final AlertDialog tmp= builder.create();
         LayoutInflater inflater = getLayoutInflater();
@@ -120,8 +196,10 @@ public class MainActivity extends AppCompatActivity
         Button makeBtn=(Button)view.findViewById(R.id.makeBtn);
         Button cancelBtn=(Button)view.findViewById(R.id.cancelBtn);
 
+
         tmp.setView(view);
         tmp.show();
+
 
         makeBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -460,6 +538,42 @@ public class MainActivity extends AppCompatActivity
         protected void onActivityResult(int requestCode, int resultCode, Intent data) {
             super.onActivityResult(requestCode, resultCode, data);
             switch (requestCode) {
+                case PICK_ALBUM: {
+                    Log.d(TAG, "onActivityResult: PICK_ALBUM");
+                    mImageCaptureUri=data.getData();
+                    Intent intent = new Intent("com.android.camera.action.CROP");
+                    intent.setDataAndType(mImageCaptureUri,"image/*");
+                    intent.putExtra("outputX",200);
+                    intent.putExtra("outputY",200);
+                    intent.putExtra("aspectX",1);
+                    intent.putExtra("aspectY",1);
+                    intent.putExtra("scale",true);
+                    intent.putExtra("return-data",true);
+                    startActivityForResult(intent,CROP_IMAGE);
+
+                    break;
+                }
+                case CROP_IMAGE:{
+                    Log.d(TAG, "onActivityResult: CROP_IMAGE");
+                    if(resultCode!=RESULT_OK) return;
+                    final Uri uri = data.getData();
+                    if (uri != null) {
+                        Picasso.get().load(uri).into(AlbumPhoto);
+                    }
+//                    final Bundle extras =data.getExtras();
+//                    Log.d(TAG, "onActivityResult: data: " + data);
+//                    Log.d(TAG, "onActivityResult: data.data: " + data.getData());
+//
+//                    //String filePath= Environment.getExternalStorageDirectory().getAbsolutePath()+
+//                     //       "/saleimg/"+System.currentTimeMillis()+".jpg";
+//                    if(extras!=null){
+//                        Log.d(TAG, "onActivityResult: 563");
+//                        Bitmap photo=extras.getParcelable("data");
+//                        AlbumPhoto.setImageBitmap(photo);
+//                        Log.d(TAG, "onActivityResult: ");
+//                    }
+                    break;
+                }
                 case GPS_ENABLE_REQUEST_CODE:
                     if (checkLocationServicesStatus()) {
                         if (checkLocationServicesStatus()) {
