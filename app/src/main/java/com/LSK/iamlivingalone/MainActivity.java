@@ -1,11 +1,13 @@
 package com.LSK.iamlivingalone;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,6 +17,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -47,6 +50,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -61,7 +67,7 @@ public class MainActivity extends AppCompatActivity
     public static final int CROP_IMAGE=2;
     private Uri mImageCaptureUri;
     public Button Markerbtn,Conbtn,Sellbtn;
-
+    public Uri uri;
     private GoogleMap mGoogleMap = null;
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -88,17 +94,20 @@ public class MainActivity extends AppCompatActivity
         public String tTitle;
         public double latitude;
         public double longitude;
+        public int iconnum;
 
         public User(){
         }
 
-        public User(String tContent, String tTitle, double latitude, double longitude){
+        public User(String tContent, String tTitle, double latitude, double longitude,int iconnum){
             this.tContent = tContent;
             this.tTitle = tTitle;
             this.latitude = latitude;
             this.longitude = longitude;
+            this.iconnum = iconnum;
         }
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,7 +200,7 @@ public class MainActivity extends AppCompatActivity
                 String tTitle=textTitle.getText().toString();
                 String tContent=textContent.getText().toString();
 
-                makeMarker(tTitle,tContent);
+                makeMarker(tTitle,tContent,3);
                 tmp.dismiss();
             }
         });
@@ -213,10 +222,13 @@ public class MainActivity extends AppCompatActivity
         Button makeBtn=(Button)view.findViewById(R.id.makeBtn);
         Button cancelBtn=(Button)view.findViewById(R.id.cancelBtn);
 
-
+        final int inum = num;
+        if(inum==2){
+            TextView txt =(TextView)view.findViewById(R.id.text);
+            txt.setText("소통하기");
+        }
         tmp.setView(view);
         tmp.show();
-
 
         makeBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -226,7 +238,7 @@ public class MainActivity extends AppCompatActivity
                 String tTitle=textTitle.getText().toString();
                 String tContent=textContent.getText().toString();
 
-                makeMarker(tTitle,tContent);
+                makeMarker(tTitle,tContent,inum);
                 tmp.dismiss();
             }
         });
@@ -301,6 +313,37 @@ public class MainActivity extends AppCompatActivity
 
         mGoogleMap = googleMap;
 
+        customInfoSell customsell = new customInfoSell(this);
+        mGoogleMap.setInfoWindowAdapter(customsell);
+
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        database.child("echo").child("userID").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                User user = dataSnapshot.getValue(User.class);
+                makeMarker(user.tTitle,user.tContent,user.latitude,user.longitude,user.iconnum);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
 
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
@@ -433,29 +476,95 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        public void makeMarker(String markerTitle,String markerSnippet){
-
-            //마커 있는 지 확인
-
-            LatLng currentLatLng=new LatLng(location.getLatitude(),location.getLongitude());
+        public void makeMarker(String markerTitle,String markerSnippet,int iconnum){
 
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(currentLatLng);
             markerOptions.title(markerTitle);
             markerOptions.snippet(markerSnippet);
             markerOptions.draggable(true);
 
+            BitmapDrawable bitmapdraw;
+            Bitmap b;
+            Bitmap smallMarker;
+            //from this 마커 이미지 변경
+            if(iconnum==1){
+                bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.speakmarker);
+            }else if(iconnum==2){
+                bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.convermarker);
+            }else{
+                bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.salemarker);
+            }
+            b=bitmapdraw.getBitmap();
+
+
+            smallMarker = Bitmap.createScaledBitmap(b, 100, 100, false);
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+            LatLng currentLatLng=new LatLng(location.getLatitude(),location.getLongitude());
+            markerOptions.position(currentLatLng);
+
+
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference();
 
-            User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude());
+            User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude(),iconnum);
             myRef.child("echo").child("userID").push().setValue(user);
 
-            
-            mGoogleMap.addMarker(markerOptions);
+
+
+            Marker m= mGoogleMap.addMarker(markerOptions);
+            if(iconnum==1){
+                m.setTag(new Memo());
+            }else if(iconnum==2){
+                m.setTag(new Conversation());
+            }else if(iconnum==3){
+                m.setTag(new Sell(uri));
+            }
+            m.showInfoWindow();
+
 
         }
+    public void makeMarker(String markerTitle,String markerSnippet,double latitude,double longitude,int iconnum){
 
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.title(markerTitle);
+        markerOptions.snippet(markerSnippet);
+        markerOptions.draggable(true);
+
+
+        BitmapDrawable bitmapdraw;
+        Bitmap b;
+        Bitmap smallMarker;
+        //from this 마커 이미지 변경
+        if(iconnum==1){
+            bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.speakmarker);
+        }else if(iconnum==2){
+            bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.convermarker);
+        }else{
+            bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.salemarker);
+        }
+        b=bitmapdraw.getBitmap();
+
+
+        smallMarker = Bitmap.createScaledBitmap(b, 100, 100, false);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+        LatLng currentLatLng=new LatLng(latitude,longitude);
+
+        markerOptions.position(currentLatLng);
+
+
+        Marker m= mGoogleMap.addMarker(markerOptions);
+        if(iconnum==1){
+            m.setTag(new Memo());
+        }else if(iconnum==2){
+            m.setTag(new Conversation());
+        }else if(iconnum==3){
+            m.setTag(new Sell(uri));
+        }
+        m.showInfoWindow();
+
+    }
 
         public void setDefaultLocation() {
 
@@ -580,7 +689,7 @@ public class MainActivity extends AppCompatActivity
                 case CROP_IMAGE:{
                     Log.d(TAG, "onActivityResult: CROP_IMAGE");
                     if(resultCode!=RESULT_OK) return;
-                    final Uri uri = data.getData();
+                    uri = data.getData();
                     if (uri != null) {
                         Picasso.get().load(uri).into(AlbumPhoto);
                     }

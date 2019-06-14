@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="200dp"
+    android:layout_height="200dp"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="200dp"
+        android:layout_height="110dp"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:id="@+id/convertitle"
+            android:textSize="30sp"
+            android:textColor="#325FFF"
+            />
+
+        <TextView
+            android:id="@+id/convercontent"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:textSize="20sp"
+
+            />
+
+
+
+    </LinearLayout>
+</RelativeLayout>
