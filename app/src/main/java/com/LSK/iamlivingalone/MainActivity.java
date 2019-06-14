@@ -46,6 +46,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -68,7 +71,6 @@ public class MainActivity extends AppCompatActivity
 
     private static final int PERMISSIONS_REQUEST_CODE = 100;
     boolean needRequest = false;
-    private int id_view;
     private ImageView AlbumPhoto;
     String[] REQUIRED_PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
@@ -81,10 +83,26 @@ public class MainActivity extends AppCompatActivity
 
     private View mLayout;
 
+    public static class User{
+        public String tContent;
+        public String tTitle;
+        public double latitude;
+        public double longitude;
+
+        public User(){
+        }
+
+        public User(String tContent, String tTitle, double latitude, double longitude){
+            this.tContent = tContent;
+            this.tTitle = tTitle;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -137,7 +155,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onClick(View v){
-        id_view=v.getId();
         if(v.getId()==R.id.uploadBtn){
             takeAlbum();
         }
@@ -427,6 +444,13 @@ public class MainActivity extends AppCompatActivity
             markerOptions.title(markerTitle);
             markerOptions.snippet(markerSnippet);
             markerOptions.draggable(true);
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference();
+
+            User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude());
+            myRef.child("echo").child("userID").push().setValue(user);
+
             
             mGoogleMap.addMarker(markerOptions);
 
@@ -560,18 +584,6 @@ public class MainActivity extends AppCompatActivity
                     if (uri != null) {
                         Picasso.get().load(uri).into(AlbumPhoto);
                     }
-//                    final Bundle extras =data.getExtras();
-//                    Log.d(TAG, "onActivityResult: data: " + data);
-//                    Log.d(TAG, "onActivityResult: data.data: " + data.getData());
-//
-//                    //String filePath= Environment.getExternalStorageDirectory().getAbsolutePath()+
-//                     //       "/saleimg/"+System.currentTimeMillis()+".jpg";
-//                    if(extras!=null){
-//                        Log.d(TAG, "onActivityResult: 563");
-//                        Bitmap photo=extras.getParcelable("data");
-//                        AlbumPhoto.setImageBitmap(photo);
-//                        Log.d(TAG, "onActivityResult: ");
-//                    }
                     break;
                 }
                 case GPS_ENABLE_REQUEST_CODE:
