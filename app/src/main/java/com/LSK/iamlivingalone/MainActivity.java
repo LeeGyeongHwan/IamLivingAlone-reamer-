@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     public Button Markerbtn,Conbtn,Sellbtn;
     public Uri uri;
     private GoogleMap mGoogleMap = null;
+    static int count=0;
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int GPS_ENABLE_REQUEST_CODE = 2001;
@@ -518,7 +519,11 @@ public class MainActivity extends AppCompatActivity
             LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng,17);
-            mGoogleMap.moveCamera(cameraUpdate);
+            if(count==0){
+                mGoogleMap.moveCamera(cameraUpdate);
+                count++;
+            }
+
 
         }
 
@@ -558,7 +563,9 @@ public class MainActivity extends AppCompatActivity
 
                     try(ByteArrayOutputStream o = new ByteArrayOutputStream()) {
                         Bitmap bitmap = Picasso.get().load(uri).get();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, o);
+                        if(iconnum==3) {
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, o);
+                        }
                         byte[] a = o.toByteArray();
                         final String base64 = Base64.encodeToString(a, Base64.DEFAULT);
                         User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude(),iconnum, base64);
@@ -643,8 +650,10 @@ public class MainActivity extends AppCompatActivity
             LatLng DEFAULT_LOCATION = new LatLng(35.230928, 129.082462);
 
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(DEFAULT_LOCATION, 17);
-            mGoogleMap.moveCamera(cameraUpdate);
-
+            if(count==0){
+                mGoogleMap.moveCamera(cameraUpdate);
+                count++;
+            }
         }
 
         private boolean checkPermission() {
