@@ -52,12 +52,12 @@
                     android:layout_width="70dp"
                     android:layout_height="fill_parent"
                     android:id="@+id/addMarkerBtn"
-                    android:text="담벼락"/>
+                    android:text="낙서 한 줄"/>
                 <Button
                     android:layout_width="70dp"
                     android:layout_height="fill_parent"
                     android:id="@+id/addconverBtn"
-                    android:text="글 남기기"/>
+                    android:text="소통하기"/>
                 <Button
                     android:layout_width="70dp"
                     android:layout_height="fill_parent"

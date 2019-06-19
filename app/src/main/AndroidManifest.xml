@@ -17,6 +17,9 @@
         android:theme="@style/AppTheme">
         <activity android:name=".EditorActivity"></activity>
         <activity android:name=".CommunityActivity" />
+        <activity android:name=".commentActivity"/>
+        <activity android:name=".Editcomment"/>
+        <activity android:name=".board"/>
 
         <uses-library
             android:name="org.apache.http.legacy"

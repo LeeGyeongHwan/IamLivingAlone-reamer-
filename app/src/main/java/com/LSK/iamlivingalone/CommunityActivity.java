@@ -79,6 +79,14 @@ public class CommunityActivity extends AppCompatActivity {
             public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i) {
                 recyclerViewHolder.title.setText(items.get(i).title);
                 recyclerViewHolder.content.setText(items.get(i).content);
+                recyclerViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent =new Intent(CommunityActivity.this,board.class);
+                        intent.putExtra("value",TAG);
+                        startActivity(intent);
+                    }
+                });
             }
 
             @Override

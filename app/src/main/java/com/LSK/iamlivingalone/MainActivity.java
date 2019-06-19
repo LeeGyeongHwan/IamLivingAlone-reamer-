@@ -67,11 +67,14 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
-        implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback,View.OnClickListener, NavigationView.OnNavigationItemSelectedListener {
+        implements OnMapReadyCallback, ActivityCompat.OnRequestPermissionsResultCallback,View.OnClickListener,
+        NavigationView.OnNavigationItemSelectedListener {
     public static final int PICK_ALBUM=1;
     public static final int CROP_IMAGE=2;
     private Uri mImageCaptureUri;
@@ -121,6 +124,7 @@ public class MainActivity extends AppCompatActivity
         public double longitude;
         public int iconnum;
         public String image;
+        public String uid;
 
         public User(){
         }
@@ -133,6 +137,8 @@ public class MainActivity extends AppCompatActivity
             this.iconnum = iconnum;
             this.image = image;
         }
+
+
     }
 
 
@@ -364,11 +370,13 @@ public class MainActivity extends AppCompatActivity
         mGoogleMap.setInfoWindowAdapter(customsell);
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+
         database.child("echo").child("userID").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 User user = dataSnapshot.getValue(User.class);
-                makeMarker(user.tTitle,user.tContent,user.latitude,user.longitude,user.iconnum,user.image);
+                user.uid=s;
+                makeMarker(user.tTitle,user.tContent,user.latitude,user.longitude,user.iconnum,user.image,s);
             }
 
             @Override
@@ -391,6 +399,8 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+        mGoogleMap.setOnInfoWindowClickListener(infoWindowClickListener);
 
 
         int hasFineLocationPermission = ContextCompat.checkSelfPermission(this,
@@ -457,6 +467,30 @@ public class MainActivity extends AppCompatActivity
 
 
         }
+
+        GoogleMap.OnInfoWindowClickListener infoWindowClickListener = new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Object tagObject = marker.getTag();
+                Log.d(TAG, "onInfoWindowClick: tagObject = " + tagObject);
+
+                if (tagObject instanceof Conversation) {
+                    Conversation conversation= (Conversation)tagObject;
+                    Log.d(TAG, "onInfoWindowClick: conversation = " + conversation);
+
+                    Intent intent = new Intent(MainActivity.this,commentActivity.class);
+                    intent.putExtra("key",conversation.uid);
+                    intent.putExtra("title",conversation.Title);
+                    intent.putExtra("content",conversation.Content);
+                    startActivity(intent);
+                }else if(tagObject instanceof Sell){
+                    Sell sell=(Sell)tagObject;
+
+                }
+
+            }
+        };
+
 
 
         @Override
@@ -570,7 +604,16 @@ public class MainActivity extends AppCompatActivity
                         final String base64 = Base64.encodeToString(a, Base64.DEFAULT);
                         User user = new User(markerTitle,markerSnippet,location.getLatitude(),location.getLongitude(),iconnum, base64);
 
-                        myRef.child("echo").child("userID").push().setValue(user);
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("iconnum", iconnum);
+                        map.put("image", base64);
+                        map.put("latitude", location.getLatitude());
+                        map.put("longitude", location.getLongitude());
+                        map.put("tContent", markerSnippet);
+                        map.put("tTitle", markerTitle);
+                        final String key = myRef.child("echo").child("userID").push().getKey();
+                        myRef.child("echo").child("userID").child(key).updateChildren(map);
+                        Log.d(TAG, "run: key = " + key);
 
                         runOnUiThread(new Runnable() {
                             @Override
@@ -579,11 +622,20 @@ public class MainActivity extends AppCompatActivity
                                 Marker m= mGoogleMap.addMarker(markerOptions);
 
                                 if(iconnum==1){
-                                    m.setTag(new Memo());
+                                    Memo memo = new Memo();
+                                    memo.uid = key;
+                                    m.setTag(memo);
                                 }else if(iconnum==2){
-                                    m.setTag(new Conversation());
+                                    Conversation conversation = new Conversation();
+
+                                    conversation.uid=key;
+                                    conversation.Title=markerTitle;
+                                    conversation.Content=markerSnippet;
+                                    m.setTag(conversation);
                                 }else if(iconnum==3){
-                                    m.setTag(new Sell(base64));
+                                    Sell sell = new Sell(base64);
+                                    sell.uid = key;
+                                    m.setTag(sell);
                                 }
                                 m.showInfoWindow();
                             }
@@ -600,7 +652,7 @@ public class MainActivity extends AppCompatActivity
 
 
         }
-    public void makeMarker(String markerTitle,String markerSnippet,double latitude,double longitude,int iconnum,String comimage){
+    public void makeMarker(String markerTitle,String markerSnippet,double latitude,double longitude,int iconnum,String comimage,String uid){
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.title(markerTitle);
@@ -634,11 +686,19 @@ public class MainActivity extends AppCompatActivity
 
         Marker m= mGoogleMap.addMarker(markerOptions);
         if(iconnum==1){
-            m.setTag(new Memo());
+            Memo memo=new Memo();
+            memo.uid=uid;
+            m.setTag(memo);
         }else if(iconnum==2){
-            m.setTag(new Conversation());
+            Conversation conversation=new Conversation();
+            conversation.uid=uid;
+            conversation.Title=markerTitle;
+            conversation.Content=markerSnippet;
+            m.setTag(conversation);
         }else if(iconnum==3){
-            m.setTag(new Sell(comimage));
+            Sell sell= new Sell(comimage);
+            sell.uid=uid;
+            m.setTag(sell);
         }
         m.showInfoWindow();
 
