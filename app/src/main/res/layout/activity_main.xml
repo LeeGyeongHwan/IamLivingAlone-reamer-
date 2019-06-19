@@ -26,7 +26,8 @@
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:background="#BC12A3EC"
+                android:layout_height="wrap_content" />
         </android.support.design.widget.AppBarLayout>
 
         <FrameLayout
@@ -43,26 +44,30 @@
                 class="com.google.android.gms.maps.MapFragment"/>
 
             <LinearLayout
-                android:layout_width="210dp"
-                android:layout_height="60dp"
-                android:orientation="horizontal"
+                android:layout_width="50dp"
+                android:layout_height="150dp"
+                android:orientation="vertical"
                 android:layout_gravity="right|bottom"
+
                 >
+
                 <Button
-                    android:layout_width="70dp"
-                    android:layout_height="fill_parent"
                     android:id="@+id/addMarkerBtn"
-                    android:text="낙서 한 줄"/>
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/chat" />
+
                 <Button
-                    android:layout_width="70dp"
-                    android:layout_height="fill_parent"
                     android:id="@+id/addconverBtn"
-                    android:text="소통하기"/>
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/group" />
+
                 <Button
-                    android:layout_width="70dp"
-                    android:layout_height="fill_parent"
                     android:id="@+id/addsellBtn"
-                    android:text="판매"/>
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/exchange" />
             </LinearLayout>
 
         </FrameLayout>
