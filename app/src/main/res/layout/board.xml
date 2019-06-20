@@ -75,6 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
         android:text="댓글 작성"
+        android:textColor="#ffffff"
+        android:background="#47A2E9"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
