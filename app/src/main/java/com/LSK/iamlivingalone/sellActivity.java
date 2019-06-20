@@ -79,6 +79,7 @@ public class sellActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("중고 팝니다~");
         }
 
         recyclerView = findViewById(R.id.recyclerViewsell);

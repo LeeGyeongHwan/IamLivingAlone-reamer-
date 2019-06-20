@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +40,7 @@ public class Editboard extends AppCompatActivity {
                 recy.title = "ID : " + titleEditText.getText().toString();
                 recy.content = contentEditText.getText().toString();
                 recy.uid = comuid;
+                Log.d("EditBoard", "onClick: " + recy);
                 reference.child("boardcom").child("userID").push().setValue(recy);
                 finish();
             }

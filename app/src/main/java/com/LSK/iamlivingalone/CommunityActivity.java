@@ -60,6 +60,7 @@ public class CommunityActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("맛집 정보");
         }
 
         recyclerView = findViewById(R.id.recyclerView);
@@ -75,14 +76,21 @@ public class CommunityActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i) {
+            public void onBindViewHolder(@NonNull final RecyclerViewHolder recyclerViewHolder, final int i) {
                 recyclerViewHolder.title.setText(items.get(i).title);
 //                recyclerViewHolder.content.setText(items.get(i).content);
                 recyclerViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent =new Intent(CommunityActivity.this,board.class);
+                        Intent intent = new Intent(CommunityActivity.this, board.class);
 
+                        String title = items.get(i).title;
+                        String content = items.get(i).content;
+                        String uid = items.get(i).uid;
+
+                        intent.putExtra("uid", uid);
+                        intent.putExtra("title", title);
+                        intent.putExtra("content", content);
 //                        FirebaseDatabase database = FirebaseDatabase.getInstance();
 //                        DatabaseReference myRef = database.getReference();
 //                        final String key = myRef.child("echo").child("userID").push().getKey();
@@ -123,6 +131,7 @@ public class CommunityActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 recylcleboard rec = dataSnapshot.getValue(recylcleboard.class);
+                rec.uid = s;
                 items.add(rec);
                 recyclerAdapter.notifyDataSetChanged();
             }

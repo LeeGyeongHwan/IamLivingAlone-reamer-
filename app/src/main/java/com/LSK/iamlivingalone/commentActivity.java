@@ -72,6 +72,7 @@ public class commentActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("소통해요");
         }
 
         recyclerView = findViewById(R.id.recyclerViewcomment);

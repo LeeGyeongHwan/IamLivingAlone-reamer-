@@ -61,7 +61,7 @@ public class board extends AppCompatActivity {
         TextView xcontent=(TextView)findViewById(R.id.boardtextid);
 
         Intent intent = getIntent();
-        final String str = intent.getStringExtra("key");
+        final String str = intent.getStringExtra("uid");
         String getti=intent.getStringExtra("title");
         String getco=intent.getStringExtra("content");
 
@@ -117,11 +117,11 @@ public class board extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 //
-//                Article article = dataSnapshot.getValue(Article.class);
-//                if(str.equals(article.uid)){
-//                    items.add(article);
-//                    recyclerAdapter.notifyDataSetChanged();
-//                }
+                recylcleboard rec = dataSnapshot.getValue(recylcleboard.class);
+                if(str.equals(rec.uid)){
+                    items.add(rec);
+                    recyclerAdapter.notifyDataSetChanged();
+                }
 
             }
 

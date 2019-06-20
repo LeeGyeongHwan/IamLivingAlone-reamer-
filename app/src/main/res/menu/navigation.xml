@@ -11,13 +11,6 @@
         <item
             android:id="@+id/comeon"
             android:title="부산대 다모여라" />
-        <item
-            android:id="@+id/diary"
-            android:title="일기장" />
-
-        <item
-            android:id="@+id/faq"
-            android:title="문의 사항" />
     </group>
 
 </menu>
