@@ -22,6 +22,7 @@
         <activity android:name=".board"/>
         <activity android:name=".sellActivity"/>
         <activity android:name=".EditSell"/>
+        <activity android:name=".Editboard"/>
 
         <uses-library
             android:name="org.apache.http.legacy"

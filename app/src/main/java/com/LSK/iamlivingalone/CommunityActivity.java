@@ -28,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,20 +38,18 @@ public class CommunityActivity extends AppCompatActivity {
 
     private static class RecyclerViewHolder extends RecyclerView.ViewHolder {
 
-        TextView content;
         TextView title;
 
         public RecyclerViewHolder(@NonNull View itemView) {
             super(itemView);
-            content = itemView.findViewById(R.id.content);
-            title = itemView.findViewById(R.id.title);
+            title = itemView.findViewById(R.id.recycletitle);
         }
     }
 
     ListView listview;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter<RecyclerViewHolder> recyclerAdapter;
-    private List<Article> items = new ArrayList<>();
+    private List<recylcleboard> items = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,18 +71,29 @@ public class CommunityActivity extends AppCompatActivity {
             @Override
             public RecyclerViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
                 LayoutInflater inflater = LayoutInflater.from(CommunityActivity.this);
-                return new RecyclerViewHolder(inflater.inflate(R.layout.activity, viewGroup, false));
+                return new RecyclerViewHolder(inflater.inflate(R.layout.recyclecommunity, viewGroup, false));
             }
 
             @Override
             public void onBindViewHolder(@NonNull RecyclerViewHolder recyclerViewHolder, int i) {
                 recyclerViewHolder.title.setText(items.get(i).title);
-                recyclerViewHolder.content.setText(items.get(i).content);
+//                recyclerViewHolder.content.setText(items.get(i).content);
                 recyclerViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent =new Intent(CommunityActivity.this,board.class);
-                        intent.putExtra("value",TAG);
+
+//                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//                        DatabaseReference myRef = database.getReference();
+//                        final String key = myRef.child("echo").child("userID").push().getKey();
+//                        myRef.child("community").child("userID").child(key).updateChildren();
+//
+//
+//                        Map<String, Object> map = new HashMap<>();
+//                        map.put("title", title);
+//                        map.put("content",content);
+
+
                         startActivity(intent);
                     }
                 });
@@ -101,6 +111,8 @@ public class CommunityActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CommunityActivity.this, EditorActivity.class);
+
+
                 startActivity(intent);
             }
         });
@@ -110,8 +122,8 @@ public class CommunityActivity extends AppCompatActivity {
         myReference.child("community").child("userID").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                Article article = dataSnapshot.getValue(Article.class);
-                items.add(article);
+                recylcleboard rec = dataSnapshot.getValue(recylcleboard.class);
+                items.add(rec);
                 recyclerAdapter.notifyDataSetChanged();
             }
 
