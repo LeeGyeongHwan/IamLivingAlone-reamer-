@@ -20,6 +20,8 @@
         <activity android:name=".commentActivity"/>
         <activity android:name=".Editcomment"/>
         <activity android:name=".board"/>
+        <activity android:name=".sellActivity"/>
+        <activity android:name=".EditSell"/>
 
         <uses-library
             android:name="org.apache.http.legacy"

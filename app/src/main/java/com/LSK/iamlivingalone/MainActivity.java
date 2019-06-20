@@ -485,6 +485,13 @@ public class MainActivity extends AppCompatActivity
                     startActivity(intent);
                 }else if(tagObject instanceof Sell){
                     Sell sell=(Sell)tagObject;
+                    Log.d(TAG, "onInfoWindowClick: sell = " + sell);
+                    Intent intent= new Intent(MainActivity.this,sellActivity.class);
+                    intent.putExtra("key",sell.uid);
+                    intent.putExtra("title",sell.title);
+                    intent.putExtra("content",sell.content);
+                    intent.putExtra("img",sell.enImg);
+                    startActivity(intent);
 
                 }
 
@@ -634,6 +641,8 @@ public class MainActivity extends AppCompatActivity
                                     m.setTag(conversation);
                                 }else if(iconnum==3){
                                     Sell sell = new Sell(base64);
+                                    sell.title=markerTitle;
+                                    sell.content=markerSnippet;
                                     sell.uid = key;
                                     m.setTag(sell);
                                 }
@@ -697,6 +706,8 @@ public class MainActivity extends AppCompatActivity
             m.setTag(conversation);
         }else if(iconnum==3){
             Sell sell= new Sell(comimage);
+            sell.title=markerTitle;
+            sell.content=markerSnippet;
             sell.uid=uid;
             m.setTag(sell);
         }

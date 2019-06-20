@@ -71,7 +71,7 @@
             android:layout_width="240dp"
             android:gravity="center"
             android:layout_height="wrap_content"
-            android:text="#채팅을 하시려면 화면을 클릭하세요"
+            android:text="#댓글을 다시려면 화면을 클릭하세요"
             />
     </LinearLayout>
 

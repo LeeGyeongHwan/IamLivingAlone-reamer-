@@ -48,6 +48,8 @@
                 android:layout_height="150dp"
                 android:orientation="vertical"
                 android:layout_gravity="right|bottom"
+                android:paddingRight="10dp"
+                android:paddingBottom="10dp"
 
                 >
 
